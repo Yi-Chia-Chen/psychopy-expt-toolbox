@@ -57,6 +57,7 @@ class instrObject:
         self.list, self.length = self.readInstr(fileName)
         self.stim = visual.TextStim(self.w, text='', color=color, height=30, wrapWidth=900)
         self.restText = restText
+        self.advancedKeyList = advancedKeyList
         self.exptEndText = exptEndText
         self.index = 0
         self.beforeFormalText = beforeFormalText
@@ -172,4 +173,7 @@ class dataObject:
                 setattr(self, x, '') # clear data after saving to prepare for the next trial
 
     def closeFile(self):
-        self.file.close()
+        try:
+            self.file.close()
+        except AttributeError:
+            print 'The data file is not opened yet.'
