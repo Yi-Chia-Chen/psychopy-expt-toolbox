@@ -107,7 +107,7 @@ class instrObject:
         self.stim.setText(self.exptEndText)
         self.stim.draw()
         self.w.flip()
-        event.waitKeys(keyList=advancedKeyList, maxWait=60)
+        event.waitKeys(keyList=self.advancedKeyList, maxWait=60)
         self.w.close()
         core.quit()
 
