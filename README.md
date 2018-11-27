@@ -4,8 +4,12 @@ This is a tiny python toolbox for PsychoPy experiment by Yi-Chia Chen.
 
 ## Version History
 - 1.0.0 (2018.10.18): First version with instructions controlling, subject data, and trial data objects
-  - Used in Mazes Game pilot 1
+  - Used in Mazes Game Pilot 1
+- 1.1.0 (2018.11.27): Passing experiment info between objects;
+                      adding rest counting to instructions, escape to trial, and get number to subject;
+                      fixing format
+  - Used in Size Preference Pilot 1
 
 ## Planned Improvements
-- Create parent objects for some common functions
 - Create object controlling experimental blocks and trials with mixed and blocked design, different randomization units, etc.
+- splitting up the instructions object to an instructions and an experiment objects
