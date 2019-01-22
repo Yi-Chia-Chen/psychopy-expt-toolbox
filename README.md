@@ -12,4 +12,5 @@ This is a tiny python toolbox for PsychoPy experiment by Yi-Chia Chen.
 
 ## Planned Improvements
 - Create object controlling experimental blocks and trials with mixed and blocked design, different randomization units, etc.
-- splitting up the instructions object to an instructions and an experiment objects
+- split up the instructions object to an instructions object and an experiment object
+- add rest duration recording to the experiment object
