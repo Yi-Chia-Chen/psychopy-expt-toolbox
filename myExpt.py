@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import math, string
+import math
+import os
+import string
 from datetime import datetime
+
 from psychopy import core, visual, info, event
 
 
@@ -74,7 +77,7 @@ def RGBConvert(rgb):
 # ███████  ██████  ██████   █████  ███████  ██████    ██
 
 class subjObject(object):
-    def __init__(self, checked, exptName, screenColor='gray', additionalVar={}):
+    def __init__(self, checked, exptName, screenColor='gray', additionalVar=[]):
         self.checked = checked
         self.exptName = exptName
         self.timer = core.Clock()
@@ -91,7 +94,7 @@ class subjObject(object):
                     color=self.screenColor, units='pix', fullscr=True,
                     allowGUI=False, autoLog=False)
         self.getBasicInfo()
-        if additionalVar != {}:
+        if additionalVar != []:
             self.addTitles(additionalVar)
 
     def getSubjNo(self):
@@ -101,7 +104,7 @@ class subjObject(object):
                 float(self.num)
                 break
             except ValueError:
-                print "That's not a number."
+                print os.path.basename(__file__) + "  --  Error: That's not a number."
         self.formal = bool(int(raw_input('Formal? ')))
 
         if self.formal:
@@ -110,9 +113,9 @@ class subjObject(object):
             self.fileName = 'testingSubj_'+self.exptName+'.txt'
 
     def addTitles(self, additionalVar):
-        for key, value in additionalVar:
-            self.titles.append(key)
-            setattr(self, key, value)
+        for name, value in additionalVar:
+            self.titles.append(name)
+            setattr(self, name, value)
 
     def getBasicInfo(self):
         self.date, self.startTime = formattedTime()
@@ -168,7 +171,7 @@ class trialObject(object):
         try:
             self.file.close()
         except AttributeError:
-            print 'The data file is not opened yet.'
+            print os.path.basename(__file__) + '  --  Error: The data file is not opened yet.'
 
     def escapeExpt(self):
         self.subj.w.close()
@@ -239,8 +242,8 @@ class instrObject(object):
     def rest(self):
         self.restCount += 1
         completePerc = int(round(  100.0*self.restCount/(self.restN+1.0)  ))
-        self.restText = self.restText.replace('XX__XX', str(completePerc))
-        self.stim.setText(self.restText)
+        self.thisRestText = self.restText.replace('XX__XX', str(completePerc))
+        self.stim.setText(self.thisRestText)
         self.stim.draw()
         self.w.flip()
         event.waitKeys(keyList=self.restKey)
