@@ -105,7 +105,19 @@ class subjObject(object):
                 break
             except ValueError:
                 print os.path.basename(__file__) + "  --  Error: That's not a number."
-        self.formal = bool(int(raw_input('Formal? ')))
+        while True:
+            self.formal = raw_input('Formal? ')
+            if self.formal in ['1','0']:
+                self.formal = bool(int(self.formal))
+                break
+            elif self.formal in ['t','True','true','TRUE']:
+                self.formal = True
+                break
+            elif self.formal in ['f','False','false','FALSE']:
+                self.formal = False
+                break
+            else:
+                print os.path.basename(__file__) + "  --  Error: Failed to convert to Boolean."
 
         if self.formal:
             self.fileName = 'subj_'+self.exptName+'.txt'
@@ -158,11 +170,9 @@ class trialObject(object):
         # save and clear data (except for the subject numbers)
         self.file.write(tabString([getattr(self, x) for x in self.titles])+'\n')
         if clear:
-            for x in self.titles:
-                if x != 'subjNo':
-                    setattr(self, x, '')
+            self.clearTrial()
 
-    def clearTrial(self): # clear data
+    def clearTrial(self): # clear data (except for the subject numbers)
         for x in self.titles:
             if x != 'subjNo':
                 setattr(self, x, '')
