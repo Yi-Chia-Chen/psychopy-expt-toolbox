@@ -33,14 +33,14 @@ def formattedTime():
 
 # get system, display, and psychopy information
 def getSystemInfo(w):
-    sysDic = info.RunTimeInfo(win=w, refreshTest=True)
-    # sysDic['pythonVersion'] # version of python used
-    # sysDic['psychopyVersion'] # version of psychopy used
-    # sysDic['systemHostName'] # name of the computer
-    # sysDic['windowRefreshTimeAvg_ms'] # mean of monitor refresh intervals
-    # sysDic['windowRefreshTimeSD_ms'] # SD of monitor refresh intervals
-    # sysDic['windowSize_pix'] # window size
-    # sysDic['windowIsFullScr'] # whether window is fullscreen
+    sysDict = info.RunTimeInfo(win=w, refreshTest=True)
+    # sysDict['pythonVersion'] # version of python used
+    # sysDict['psychopyVersion'] # version of psychopy used
+    # sysDict['systemHostName'] # name of the computer
+    # sysDict['windowRefreshTimeAvg_ms'] # mean of monitor refresh intervals
+    # sysDict['windowRefreshTimeSD_ms'] # SD of monitor refresh intervals
+    # sysDict['windowSize_pix'] # window size
+    # sysDict['windowIsFullScr'] # whether window is fullscreen
     # full list of keys:
     #     ['psychopyVersion', 'systemRebooted', 'windowWinType', 'windowRgb',
     #     'systemUserID', 'windowRefreshTimeMedian_ms', 'windowScreen',
@@ -54,10 +54,10 @@ def getSystemInfo(w):
     #     'experimentScript', 'experimentScript.digestSHA1', 'systemUsersCount',
     #     'windowPos_pix', 'pythonVersion', 'windowMonitor.currentCalibName',
     #     'systemMemTotalRAM', 'windowIsFullScr', 'systemHostName']
-    return (sysDic['pythonVersion'], sysDic['psychopyVersion'],
-            sysDic['systemHostName'], sysDic['windowRefreshTimeAvg_ms'],
-            sysDic['windowRefreshTimeSD_ms'], sysDic['windowSize_pix'],
-            sysDic['windowIsFullScr'])
+    return (sysDict['pythonVersion'], sysDict['psychopyVersion'],
+            sysDict['systemHostName'], sysDict['windowRefreshTimeAvg_ms'],
+            sysDict['windowRefreshTimeSD_ms'], sysDict['windowSize_pix'],
+            sysDict['windowIsFullScr'])
 
 # capitalize the first letter ONLY,
 # instead of using string.capitalize() or string.capwords()
@@ -69,6 +69,108 @@ def capFirstLetter(stringText):
 def RGBConvert(rgb):
     return [(2.0*i/255.0)-1 for i in rgb]
 
+# print error messages
+def errorMessage(type, message):
+    print os.path.basename(__file__) + '  --  ' + type + ': ' + message
+
+
+# ███████ ██   ██ ██████  ████████
+# ██       ██ ██  ██   ██    ██
+# █████     ███   ██████     ██
+# ██       ██ ██  ██         ██
+# ███████ ██   ██ ██         ██
+
+class exptObject(object):
+    def __init__(self, subj=None, trial=None, instr=None, checked, exptName,
+                 screenColor='gray', pracBlockN=1, blockN=1, repeatBlockN=0,
+                 restN=0, practiceTrialN, condN=1, condTrialN, condRepeatN=0):
+        self.subj = subj
+        self.trial = trial
+        self.instr = instr
+        self.checked = checked
+        self.exptName = exptName
+        self.screenColor = screenColor
+        self.pracBlockN = pracBlockN
+        self.blockN = blockN
+        self.repeatBlockN = repeatBlockN # this is used to repeat a subset of trials
+        self.restN = restN
+        self.restCount = 0
+        self.practiceTrialN = practiceTrialN
+        self.condN = condN
+        self.condTrialN = condTrialN
+        self.condRepeatN = condRepeatN # number of trial repeating in each condition at the end
+        self.trialNCal()
+        self.w = visual.Window(
+                    color=self.screenColor, units='pix', fullscr=True,
+                    allowGUI=False, autoLog=False)
+        self.restTimer = core.Clock()
+        self.restD = []
+
+    def trialNCal(self):
+        self.totalBlockN = self.pracBlockN + self.blockN + self.repeatBlockN
+        self.repeatN = self.condRepeatN * self.condN
+        self.blockTrialN = self.condTrialN * self.condN
+        self.trialN = self.blockTrialN * self.blockN + self.repeatN
+        self.restTrialN = int(math.ceil(self.trialN/(self.restN+1.0)))
+        if self.trialN % (self.restN+1.0) != 0:
+            errorMessage('WARNING','Unequal trial numbers between rests due to trial number being non-divisible.')
+
+    def exptCheck(self):
+        checkDict = {'subject':self.subj, 'trial':self.trial, 'instructions':self.instr}
+        for key, value in checkDict.iteritems():
+            if value == None:
+                errorMessage('BUG','Experiment object is not fully defined. The' + key + 'object is not assigned.')
+            self.escapeExpt()
+
+    def rest(self):
+        self.restCount += 1
+        completePerc = int(round(  100.0*self.restCount/(self.restN+1.0)  ))
+        try:
+            self.instr.stim.setText(self.instr.restText.replace('XX__XX', str(completePerc)))
+            self.instr.stim.draw()
+        except AttributeError:
+            errorMessage('BUG','The instructions object is not assigned. Escape right before showing the rest instructions.')
+            self.escapeExpt()
+        self.w.flip()
+        self.restTimer.reset()
+        event.waitKeys(keyList=self.instr.restKey)
+        self.w.flip()
+        self.restD.append(self.restTimer.getTime())
+
+    def escapeExpt(self):
+        self.w.close()
+        try:
+            self.subj.save(complete=False)
+        except AttributeError:
+            errorMessage('NOTICE','Escape before assigning or creating the subject object.')
+        try:
+            self.trial.closeFile()
+        except AttributeError:
+            errorMessage('NOTICE','Escape before assigning or creating the trial object.')
+        exit(0)
+
+    def endExpt(self):
+        try:
+            self.instr.stim.setText(self.instr.exptEndText)
+            self.instr.stim.draw()
+        except AttributeError:
+            errorMessage('BUG','The instructions object is not assigned. Escape right before showing the end instructions.')
+            self.escapeExpt()
+        self.w.flip()
+        try:
+            self.subj.save()
+        except AttributeError:
+            errorMessage('BUG','The subj object is not assigned. Escape right after showing the end instructions.')
+            self.escapeExpt()
+        try:
+            self.trial.closeFile()
+        except AttributeError:
+            errorMessage('BUG','The trial object is not assigned. Escape right after showing the end instructions and saving the subject data.')
+            self.escapeExpt()
+        event.waitKeys(keyList=self.instr.advancedKeyList, maxWait=60)
+        self.w.close()
+        exit(0)
+
 
 # ███████ ██    ██ ██████       ██ ███████  ██████ ████████
 # ██      ██    ██ ██   ██      ██ ██      ██         ██
@@ -77,9 +179,13 @@ def RGBConvert(rgb):
 # ███████  ██████  ██████   █████  ███████  ██████    ██
 
 class subjObject(object):
-    def __init__(self, checked, exptName, screenColor='gray', additionalVar=[]):
-        self.checked = checked
-        self.exptName = exptName
+    def __init__(self, expt, additionalVar=[]):
+        self.expt = expt
+        self.w = self.expt.w
+        self.expt.subj = self
+        self.checked = self.expt.checked
+        self.exptName = self.expt.exptName
+        self.getBasicInfo()
         self.timer = core.Clock()
         self.titles = ['checked','num','date','startTime',
                        'python','psychopy','system',
@@ -89,13 +195,14 @@ class subjObject(object):
         self.instrD = 'X' # default value before completion
         self.duration = 'X' # default value before completion
         self.getSubjNo()
-        self.screenColor = screenColor
-        self.w = visual.Window(
-                    color=self.screenColor, units='pix', fullscr=True,
-                    allowGUI=False, autoLog=False)
-        self.getBasicInfo()
         if additionalVar != []:
             self.addTitles(additionalVar)
+
+    def getBasicInfo(self):
+        self.date, self.startTime = formattedTime()
+        (self.python, self.psychopy, self.system,
+        self.frameD_M, self.frameD_SD, (self.winWidth,
+        self.winHeight), self.fullScreen) = getSystemInfo(self.w)
 
     def getSubjNo(self):
         while True:
@@ -129,16 +236,22 @@ class subjObject(object):
             self.titles.append(name)
             setattr(self, name, value)
 
-    def getBasicInfo(self):
-        self.date, self.startTime = formattedTime()
-        (self.python, self.psychopy, self.system,
-        self.frameD_M, self.frameD_SD, (self.winWidth,
-        self.winHeight), self.fullScreen) = getSystemInfo(self.w)
+    def recordRestD(self, restD):
+
+        for i in xrange(self.expt.restN):
+            name = 'restD'+str(i+1)
+            self.titles.append(name)
+            try:
+                setattr(self, name, restD[i])
+            except IndexError:
+                setattr(self, name, 'X')
+                print os.path.basename(__file__) + "  --  WARNING: Actual rest number is less than defined rest number."
 
     def save(self, complete=True):
         self.duration = self.timer.getTime()/60.0 # experiment duration in minutes
         if not complete:
             self.duration = 'HALT_'+str(self.duration)
+        self.recordRestD()
         with open(self.fileName, 'a') as subjFile:
             subjFile.write(tabString([capFirstLetter(x) for x in self.titles])+'\n')
             subjFile.write(tabString([getattr(self, x) for x in self.titles])+'\n')
@@ -151,14 +264,16 @@ class subjObject(object):
 #    ██    ██   ██ ██ ██   ██ ███████
 
 class trialObject(object):
-    def __init__(self, subj, titles):
+    def __init__(self, expt, subj, titles):
+        self.expt = expt
+        self.expt.trial = self
         self.subj = subj
         self.subjNo = subj.num
-        if subj.formal:
-            self.fileName = 'data_'+subj.exptName+'.txt'
-        else:
-            self.fileName = 'testingData_'+subj.exptName+'.txt'
         self.exptName = subj.exptName
+        if subj.formal:
+            self.fileName = 'data_'+self.exptName+'.txt'
+        else:
+            self.fileName = 'testingData_'+self.exptName+'.txt'
         self.titles = titles
         self.clearTrial() # to create all attributes and set default values
 
@@ -181,14 +296,7 @@ class trialObject(object):
         try:
             self.file.close()
         except AttributeError:
-            print os.path.basename(__file__) + '  --  Error: The data file is not opened yet.'
-
-    def escapeExpt(self):
-        self.subj.w.close()
-        self.subj.save(complete=False)
-        self.closeFile()
-        exit(0)
-
+            print os.path.basename(__file__) + '  --  NOTICE: Closing the data file before it is created.'
 
 
 # ██ ███    ██ ███████ ████████ ██████
@@ -198,11 +306,11 @@ class trialObject(object):
 # ██ ██   ████ ███████    ██    ██   ██
 
 class instrObject(object):
-    def __init__(self, subj, trial, fileName='instructions.txt', color='black',
-                 beforeFormalText='X', restText='X', restN=0, restKey=['space'],
+    def __init__(self, expt, subj, trial, fileName='instructions.txt', color='black',
+                 beforeFormalText='X', restText='X', restKey=['space'],
                  exptEndText='X', advancedKeyList=['backslash']):
-        self.subj = subj
-        self.trial = trial
+        self.expt = expt
+        self.expt.instr = self
         self.w = self.subj.w
         self.list, self.length = self.readInstr(fileName)
         self.stim = visual.TextStim(
@@ -249,28 +357,8 @@ class instrObject(object):
         self.stim.draw()
         self.w.flip()
 
-    def rest(self):
-        self.restCount += 1
-        completePerc = int(round(  100.0*self.restCount/(self.restN+1.0)  ))
-        self.thisRestText = self.restText.replace('XX__XX', str(completePerc))
-        self.stim.setText(self.thisRestText)
-        self.stim.draw()
-        self.w.flip()
-        event.waitKeys(keyList=self.restKey)
-        self.w.flip()
-
     def next(self):
         self.stim.setText(self.list[self.index])
         functionName = self.list[self.index+1]
         self.index += 2
         return functionName
-
-    def endExpt(self):
-        self.stim.setText(self.exptEndText)
-        self.stim.draw()
-        self.w.flip()
-        self.trial.closeFile()
-        self.subj.save()
-        event.waitKeys(keyList=self.advancedKeyList, maxWait=60)
-        self.w.close()
-        exit(0)
