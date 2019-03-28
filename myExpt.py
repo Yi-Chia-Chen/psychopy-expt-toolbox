@@ -187,7 +187,7 @@ class subjObject(object):
         self.exptName = self.expt.exptName
         self.getBasicInfo()
         self.timer = core.Clock()
-        self.titles = ['checked','num','date','startTime',
+        self.titles = ['checked','num','replacement','date','startTime',
                        'python','psychopy','system',
                        'frameD_M','frameD_SD',
                        'winWidth','winHeight','fullScreen',
@@ -208,10 +208,10 @@ class subjObject(object):
         while True:
             self.num = raw_input('Subj No.: ')
             try:
-                float(self.num)
+                int(self.num)
                 break
             except ValueError:
-                print os.path.basename(__file__) + "  --  Error: That's not a number."
+                errorMessage('Error',"That's not an integer.")
         while True:
             self.formal = raw_input('Formal? ')
             if self.formal in ['1','0']:
@@ -224,7 +224,20 @@ class subjObject(object):
                 self.formal = False
                 break
             else:
-                print os.path.basename(__file__) + "  --  Error: Failed to convert to Boolean."
+                errorMessage('Error','Failed to convert to Boolean.')
+        while True:
+            self.replacement = raw_input('Replacement? ')
+            if self.replacement in ['1','0']:
+                self.replacement = bool(int(self.formal))
+                break
+            elif self.replacement in ['t','True','true','TRUE']:
+                self.replacement = True
+                break
+            elif self.replacement in ['f','False','false','FALSE']:
+                self.replacement = False
+                break
+            else:
+                errorMessage('Error','Failed to convert to Boolean.')
 
         if self.formal:
             self.fileName = 'subj_'+self.exptName+'.txt'
@@ -237,7 +250,6 @@ class subjObject(object):
             setattr(self, name, value)
 
     def recordRestD(self, restD):
-
         for i in xrange(self.expt.restN):
             name = 'restD'+str(i+1)
             self.titles.append(name)
@@ -323,7 +335,6 @@ class instrObject(object):
         self.beforeFormalText = beforeFormalText
         self.advancedKeyList = advancedKeyList
         self.restCount = 0
-        self.restN = restN
         self.restKey = restKey
 
     def readInstr(self,fileName):

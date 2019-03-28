@@ -21,10 +21,14 @@ This is a tiny python toolbox for PsychoPy experiment by Yi-Chia Chen.
     - Used in Scene Size Adjustment Pilot 1
     - Used in Scene Size Adjustment Pilot 2 (Blocked)
 
-- 2.0.0 (2019.03.08): Adding experiment object and adjust roles of instructions, subject, and trial objects;
-                      Adding rest duration recording to the experiment object;
-                      Adding error message function
-                      NOT TESTED YET
+- 2.0.0b (2019.03.26): Adding experiment object and adjust roles of instructions, subject, and trial objects;
+                       Adding rest duration recording to the experiment object;
+                       Adding error message function
+
+- 2.0.1b (2019.03.28): Fixing format and clean up redundancy;
+                       Change the float subject number input to integer (to allow easier counter-balancing);
+                       To allow replacing subject, add replacement count attribute and inquiry to the subject object
+
 
 ## Planned Improvements
 - Create object controlling experimental blocks and trials with mixed and blocked design, different randomization units, etc.
