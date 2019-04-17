@@ -29,6 +29,12 @@ This is a tiny python toolbox for PsychoPy experiment by Yi-Chia Chen.
                        Change the float subject number input to integer (to allow easier counter-balancing);
                        To allow replacing subject, add replacement count attribute and inquiry to the subject object
 
+- 2.0.2b (2019.04.16): Fixing some bugs;
+
 
 ## Planned Improvements
-- Create object controlling experimental blocks and trials with mixed and blocked design, different randomization units, etc.
+- Fix the os path name error in error message printing (add a parameter to the function)
+- Check rest count automatically and skip the rest at the end of the experiment
+- Add trial count for rest (across blocks)
+- Add check trial list length method in exptObject
+- Create object controlling experimental blocks and trials with mixed and blocked design, different randomization units, etc. (nextTrial(), nextBlock() that update the trial.trialNo, .blockNo, & .restCount automatically)

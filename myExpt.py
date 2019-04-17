@@ -81,9 +81,9 @@ def errorMessage(type, message):
 # ███████ ██   ██ ██         ██
 
 class exptObject(object):
-    def __init__(self, subj=None, trial=None, instr=None, checked, exptName,
+    def __init__(self, subj=None, trial=None, instr=None, checked=False, exptName='Undefined',
                  screenColor='gray', pracBlockN=1, blockN=1, repeatBlockN=0,
-                 restN=0, practiceTrialN, condN=1, condTrialN, condRepeatN=0):
+                 restN=0, practiceTrialN=0, condN=1, condTrialN=1, condRepeatN=0):
         self.subj = subj
         self.trial = trial
         self.instr = instr
@@ -100,9 +100,6 @@ class exptObject(object):
         self.condTrialN = condTrialN
         self.condRepeatN = condRepeatN # number of trial repeating in each condition at the end
         self.trialNCal()
-        self.w = visual.Window(
-                    color=self.screenColor, units='pix', fullscr=True,
-                    allowGUI=False, autoLog=False)
         self.restTimer = core.Clock()
         self.restD = []
 
@@ -181,10 +178,13 @@ class exptObject(object):
 class subjObject(object):
     def __init__(self, expt, additionalVar=[]):
         self.expt = expt
-        self.w = self.expt.w
         self.expt.subj = self
         self.checked = self.expt.checked
         self.exptName = self.expt.exptName
+        self.getSubjNo()
+        self.w = visual.Window(color=self.expt.screenColor, units='pix',
+                    fullscr=True, allowGUI=False, autoLog=False)
+        self.expt.w = self.w
         self.getBasicInfo()
         self.timer = core.Clock()
         self.titles = ['checked','num','replacement','date','startTime',
@@ -194,7 +194,6 @@ class subjObject(object):
                        'instrD','duration']
         self.instrD = 'X' # default value before completion
         self.duration = 'X' # default value before completion
-        self.getSubjNo()
         if additionalVar != []:
             self.addTitles(additionalVar)
 
@@ -318,12 +317,12 @@ class trialObject(object):
 # ██ ██   ████ ███████    ██    ██   ██
 
 class instrObject(object):
-    def __init__(self, expt, subj, trial, fileName='instructions.txt', color='black',
+    def __init__(self, expt, subj, fileName='instructions.txt', color='black',
                  beforeFormalText='X', restText='X', restKey=['space'],
                  exptEndText='X', advancedKeyList=['backslash']):
         self.expt = expt
         self.expt.instr = self
-        self.w = self.subj.w
+        self.w = subj.w
         self.list, self.length = self.readInstr(fileName)
         self.stim = visual.TextStim(
                                     self.w, text='', color=color,
