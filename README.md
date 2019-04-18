@@ -31,6 +31,9 @@ This is a tiny python toolbox for PsychoPy experiment by Yi-Chia Chen.
 
 - 2.0.2b (2019.04.16): Fixing some bugs;
 
+- 2.0.3 (2019.04.18): Fixing a bug;
+    - Used in Size Preference Expt 2 2IFC Intact Images Pretest
+
 
 ## Planned Improvements
 - Fix the os path name error in error message printing (add a parameter to the function)

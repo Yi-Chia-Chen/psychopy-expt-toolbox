@@ -248,12 +248,12 @@ class subjObject(object):
             self.titles.append(name)
             setattr(self, name, value)
 
-    def recordRestD(self, restD):
+    def recordRestD(self):
         for i in xrange(self.expt.restN):
             name = 'restD'+str(i+1)
             self.titles.append(name)
             try:
-                setattr(self, name, restD[i])
+                setattr(self, name, self.expt.restD[i])
             except IndexError:
                 setattr(self, name, 'X')
                 print os.path.basename(__file__) + "  --  WARNING: Actual rest number is less than defined rest number."
