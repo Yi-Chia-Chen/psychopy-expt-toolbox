@@ -41,3 +41,6 @@ This is a tiny python toolbox for PsychoPy experiment by Yi-Chia Chen.
 - Add trial count for rest (across blocks)
 - Add check trial list length method in exptObject
 - Create object controlling experimental blocks and trials with mixed and blocked design, different randomization units, etc. (nextTrial(), nextBlock() that update the trial.trialNo, .blockNo, & .restCount automatically)
+- Use assert()
+- Develop testing tool sets
+- reverse chronical order
