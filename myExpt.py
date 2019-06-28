@@ -14,65 +14,44 @@ from psychopy import core, visual, info, event
 # ██      ██    ██ ██  ██ ██ ██         ██    ██ ██    ██ ██  ██ ██      ██
 # ██       ██████  ██   ████  ██████    ██    ██  ██████  ██   ████ ███████
 
-# polar coordinate to Cartesian coordinate
-def polarToCart(r, theta):
-    x = r*math.cos(math.radians(theta))
-    y = r*math.sin(math.radians(theta))
-    return [x,y]
+def polar_to_cartesian(r, theta):
+    X = r*math.cos(math.radians(theta))
+    Y = r*math.sin(math.radians(theta))
+    return [X, Y]
 
-# turn a list of variables to strings with tabs in between each item
-def tabString(dataList):
-    dataList = [str(x) for x in dataList]
-    return '\t'.join(dataList)
+def turn_list_to_tabbed_string(data_list):
+    data_list = [str(x) for x in data_list]
+    return '\t'.join(data_list)
 
-# produce formatted current date and time
-def formattedTime():
-    nowDate = str(datetime.now()).split('.')[0].split(' ')[0]
-    nowTime = str(datetime.now()).split('.')[0].split(' ')[1]
-    return nowDate, nowTime
+def produce_formatted_time_string():
+    NOW_DATE = str(datetime.now()).split('.')[0].split(' ')[0]
+    NOW_TIME = str(datetime.now()).split('.')[0].split(' ')[1]
+    return [NOW_DATE, NOW_TIME]
 
-# get system, display, and psychopy information
-def getSystemInfo(w):
-    sysDict = info.RunTimeInfo(win=w, refreshTest=True)
-    # sysDict['pythonVersion'] # version of python used
-    # sysDict['psychopyVersion'] # version of psychopy used
-    # sysDict['systemHostName'] # name of the computer
-    # sysDict['windowRefreshTimeAvg_ms'] # mean of monitor refresh intervals
-    # sysDict['windowRefreshTimeSD_ms'] # SD of monitor refresh intervals
-    # sysDict['windowSize_pix'] # window size
-    # sysDict['windowIsFullScr'] # whether window is fullscreen
-    # full list of keys:
-    #     ['psychopyVersion', 'systemRebooted', 'windowWinType', 'windowRgb',
-    #     'systemUserID', 'windowRefreshTimeMedian_ms', 'windowScreen',
-    #     'systemTimeNumpySD1000000_sec', 'windowSize_pix', 'systemUser',
-    #     'systemHaveInternetAccess', 'windowMonitor.name', 'systemMemFreeRAM',
-    #     'windowMonitor.getDistance_cm', 'psychopyHaveExtRush',
-    #     'windowRefreshTimeAvg_ms', 'windowUnits', 'systemLocale',
-    #     'systemPlatform', 'experimentRunTime', 'windowRefreshTimeSD_ms',
-    #     'experimentScript.directory', 'systemSec.pythonSSL',
-    #     'windowMonitor.getWidth_cm', 'experimentRunTime.epoch',
-    #     'experimentScript', 'experimentScript.digestSHA1', 'systemUsersCount',
-    #     'windowPos_pix', 'pythonVersion', 'windowMonitor.currentCalibName',
-    #     'systemMemTotalRAM', 'windowIsFullScr', 'systemHostName']
-    return (sysDict['pythonVersion'], sysDict['psychopyVersion'],
-            sysDict['systemHostName'], sysDict['windowRefreshTimeAvg_ms'],
-            sysDict['windowRefreshTimeSD_ms'], sysDict['windowSize_pix'],
-            sysDict['windowIsFullScr'])
+def get_system_info(w):
+    SYS_DICT = info.RunTimeInfo(win=w, refreshTest=True)
+    return (SYS_DICT['pythonVersion'], SYS_DICT['psychopyVersion'],
+            SYS_DICT['systemHostName'], SYS_DICT['windowRefreshTimeAvg_ms'],
+            SYS_DICT['windowRefreshTimeSD_ms'], SYS_DICT['windowSize_pix'],
+            SYS_DICT['windowIsFullScr'])
 
-# capitalize the first letter ONLY,
-# instead of using string.capitalize() or string.capwords()
-# where the rest of the letter will be .lower()
-def capFirstLetter(stringText):
-    return stringText[0].upper() + stringText[1:]
+def capitalize_first_letter(string_text):
+    return string_text[0].upper() + string_text[1:]
 
-# convert RGB 256 scale to -1.0-1.0
-def RGBConvert(rgb):
+def RGB256_to_RGBn1to1(rgb):
     return [(2.0*i/255.0)-1 for i in rgb]
 
-# print error messages
-def errorMessage(type, message):
-    print os.path.basename(__file__) + '  --  ' + type + ': ' + message
+def print_error_message(error_type, file_name, message):
+    print file_name + '  --  ' + error_type + ': ' + message
+    return None
 
+def check_string_as_boolean(string_text):
+    result = None
+    if string_text in ['1','t','T','True','true','TRUE']:
+        result = True
+    elif string_text in ['0','f','F','False','false','FALSE']:
+        result = False
+    return result
 
 # ███████ ██   ██ ██████  ████████
 # ██       ██ ██  ██   ██    ██
@@ -81,12 +60,9 @@ def errorMessage(type, message):
 # ███████ ██   ██ ██         ██
 
 class exptObject(object):
-    def __init__(self, subj=None, trial=None, instr=None, checked=False, exptName='Undefined',
+    def __init__(self, checked=False, exptName='Undefined',
                  screenColor='gray', pracBlockN=1, blockN=1, repeatBlockN=0,
                  restN=0, practiceTrialN=0, condN=1, condTrialN=1, condRepeatN=0):
-        self.subj = subj
-        self.trial = trial
-        self.instr = instr
         self.checked = checked
         self.exptName = exptName
         self.screenColor = screenColor
@@ -103,6 +79,21 @@ class exptObject(object):
         self.restTimer = core.Clock()
         self.restD = []
 
+    def createSubjDataInstance(self, additionalVar=[]):
+        self.subj = subjDataObject(additionalVar)
+        self.subj.exptName = self.exptName
+        self.subj.checked = self.checked
+
+    def createTrialDataInstance(self, titles):
+        self.trial = trialDataObject(titles)
+        self.trial.subjNo = self.subj.num
+        self.trial.exptName = self.exptName
+        self.trial.checked = self.checked
+    
+    def createInstrInstance(self, fileName='instructions.txt', color='black', beforeFormalText='X', restText='X', restKey=['space'], exptEndText='X', advancedKeyList=['backslash']):
+        self.instr = instrObject(fileName, color, beforeFormalText, restText, restKey, exptEndText, advancedKeyList)
+        self.instr.w = self.w
+
     def trialNCal(self):
         self.totalBlockN = self.pracBlockN + self.blockN + self.repeatBlockN
         self.repeatN = self.condRepeatN * self.condN
@@ -110,14 +101,25 @@ class exptObject(object):
         self.trialN = self.blockTrialN * self.blockN + self.repeatN
         self.restTrialN = int(math.ceil(self.trialN/(self.restN+1.0)))
         if self.trialN % (self.restN+1.0) != 0:
-            errorMessage('WARNING','Unequal trial numbers between rests due to trial number being non-divisible.')
+            print_error_message('WARNING', os.path.basename(__file__), 'Unequal trial numbers between rests due to trial number being non-divisible.')
 
-    def exptCheck(self):
-        checkDict = {'subject':self.subj, 'trial':self.trial, 'instructions':self.instr}
-        for key, value in checkDict.iteritems():
-            if value == None:
-                errorMessage('BUG','Experiment object is not fully defined. The' + key + 'object is not assigned.')
-            self.escapeExpt()
+    def openExptWin(self):
+        self.w = visual.Window(color=self.screenColor, units='pix',
+                    fullscr=True, allowGUI=False, autoLog=False)
+        self.getBasicInfo()
+    
+    def getBasicInfo(self):
+        self.subj.date, self.subj.startTime = produce_formatted_time_string()
+        (self.subj.python, self.subj.psychopy, self.subj.system,
+        self.subj.frameD_M, self.subj.frameD_SD, (self.subj.winWidth,
+        self.subj.winHeight), self.subj.fullScreen) = get_system_info(self.w)
+    
+    # def exptCheck(self):
+    #     checkDict = {'subject':self.subj, 'trial':self.trial, 'instructions':self.instr}
+    #     for key, value in checkDict.iteritems():
+    #         if value == None:
+    #             print_error_message('BUG', os.path.basename(__file__),'Experiment object is not fully defined. The' + key + 'object is not assigned.')
+    #         self.escapeExpt()
 
     def rest(self):
         self.restCount += 1
@@ -126,24 +128,24 @@ class exptObject(object):
             self.instr.stim.setText(self.instr.restText.replace('XX__XX', str(completePerc)))
             self.instr.stim.draw()
         except AttributeError:
-            errorMessage('BUG','The instructions object is not assigned. Escape right before showing the rest instructions.')
+            print_error_message('BUG', os.path.basename(__file__),'The instructions object is not created. Escape right before showing the rest instructions.')
             self.escapeExpt()
         self.w.flip()
         self.restTimer.reset()
         event.waitKeys(keyList=self.instr.restKey)
         self.w.flip()
-        self.restD.append(self.restTimer.getTime())
+        self.subj.restD.append(self.restTimer.getTime())
 
     def escapeExpt(self):
         self.w.close()
         try:
             self.subj.save(complete=False)
         except AttributeError:
-            errorMessage('NOTICE','Escape before assigning or creating the subject object.')
+            print_error_message('NOTICE', os.path.basename(__file__),'Escape before creating the subject object.')
         try:
             self.trial.closeFile()
         except AttributeError:
-            errorMessage('NOTICE','Escape before assigning or creating the trial object.')
+            print_error_message('NOTICE', os.path.basename(__file__),'Escape before creating the trial object.')
         exit(0)
 
     def endExpt(self):
@@ -151,18 +153,18 @@ class exptObject(object):
             self.instr.stim.setText(self.instr.exptEndText)
             self.instr.stim.draw()
         except AttributeError:
-            errorMessage('BUG','The instructions object is not assigned. Escape right before showing the end instructions.')
+            print_error_message('BUG', os.path.basename(__file__),'The instructions object is not created. Escape right before showing the end instructions.')
             self.escapeExpt()
         self.w.flip()
         try:
             self.subj.save()
         except AttributeError:
-            errorMessage('BUG','The subj object is not assigned. Escape right after showing the end instructions.')
+            print_error_message('BUG', os.path.basename(__file__),'The subj object is not created. Escape right after showing the end instructions.')
             self.escapeExpt()
         try:
             self.trial.closeFile()
         except AttributeError:
-            errorMessage('BUG','The trial object is not assigned. Escape right after showing the end instructions and saving the subject data.')
+            print_error_message('BUG', os.path.basename(__file__),'The trial object is not created. Escape right after showing the end instructions and saving the subject data.')
             self.escapeExpt()
         event.waitKeys(keyList=self.instr.advancedKeyList, maxWait=60)
         self.w.close()
@@ -175,69 +177,42 @@ class exptObject(object):
 #      ██ ██    ██ ██   ██ ██   ██ ██      ██         ██
 # ███████  ██████  ██████   █████  ███████  ██████    ██
 
-class subjObject(object):
-    def __init__(self, expt, additionalVar=[]):
-        self.expt = expt
-        self.expt.subj = self
-        self.checked = self.expt.checked
-        self.exptName = self.expt.exptName
-        self.getSubjNo()
-        self.w = visual.Window(color=self.expt.screenColor, units='pix',
-                    fullscr=True, allowGUI=False, autoLog=False)
-        self.expt.w = self.w
-        self.getBasicInfo()
+class subjDataObject(object):
+    def __init__(self, additionalVar=[]):
+        self.num = None
         self.timer = core.Clock()
         self.titles = ['checked','num','replacement','date','startTime',
                        'python','psychopy','system',
                        'frameD_M','frameD_SD',
                        'winWidth','winHeight','fullScreen',
                        'instrD','duration']
+        self.addTitles(additionalVar)
         self.instrD = 'X' # default value before completion
         self.duration = 'X' # default value before completion
-        if additionalVar != []:
-            self.addTitles(additionalVar)
+        self.subj.askForSubjInfo()
 
-    def getBasicInfo(self):
-        self.date, self.startTime = formattedTime()
-        (self.python, self.psychopy, self.system,
-        self.frameD_M, self.frameD_SD, (self.winWidth,
-        self.winHeight), self.fullScreen) = getSystemInfo(self.w)
-
-    def getSubjNo(self):
+    def askForSubjInfo(self):
         while True:
-            self.num = raw_input('Subj No.: ')
+            self.num = raw_input('Subj No.: (int) ')
             try:
                 int(self.num)
                 break
             except ValueError:
-                errorMessage('Error',"That's not an integer.")
+                print_error_message('Error', os.path.basename(__file__),"That's not an integer.")
         while True:
-            self.formal = raw_input('Formal? ')
-            if self.formal in ['1','0']:
-                self.formal = bool(int(self.formal))
-                break
-            elif self.formal in ['t','True','true','TRUE']:
-                self.formal = True
-                break
-            elif self.formal in ['f','False','false','FALSE']:
-                self.formal = False
-                break
+            self.formal = raw_input('Formal? (T/F) ')
+            self.formal = check_string_as_boolean(self.formal)
+            if self.formal == None:
+                print_error_message('Error', os.path.basename(__file__),'Failed to convert to Boolean.')
             else:
-                errorMessage('Error','Failed to convert to Boolean.')
+                break
         while True:
-            self.replacement = raw_input('Replacement? ')
-            if self.replacement in ['1','0']:
-                self.replacement = bool(int(self.formal))
-                break
-            elif self.replacement in ['t','True','true','TRUE']:
-                self.replacement = True
-                break
-            elif self.replacement in ['f','False','false','FALSE']:
-                self.replacement = False
-                break
+            self.replacement = raw_input('Replacement? (T/F) ')
+            self.replacement = check_string_as_boolean(self.replacement)
+            if self.replacement == None:
+                print_error_message('Error', os.path.basename(__file__),'Failed to convert to Boolean.')
             else:
-                errorMessage('Error','Failed to convert to Boolean.')
-
+                break
         if self.formal:
             self.fileName = 'subj_'+self.exptName+'.txt'
         else:
@@ -249,14 +224,10 @@ class subjObject(object):
             setattr(self, name, value)
 
     def recordRestD(self):
-        for i in xrange(self.expt.restN):
+        for i, duration in enumerate(self.restD):
             name = 'restD'+str(i+1)
             self.titles.append(name)
-            try:
-                setattr(self, name, self.expt.restD[i])
-            except IndexError:
-                setattr(self, name, 'X')
-                print os.path.basename(__file__) + "  --  WARNING: Actual rest number is less than defined rest number."
+            setattr(self, name, duration)
 
     def save(self, complete=True):
         self.duration = self.timer.getTime()/60.0 # experiment duration in minutes
@@ -264,8 +235,8 @@ class subjObject(object):
             self.duration = 'HALT_'+str(self.duration)
         self.recordRestD()
         with open(self.fileName, 'a') as subjFile:
-            subjFile.write(tabString([capFirstLetter(x) for x in self.titles])+'\n')
-            subjFile.write(tabString([getattr(self, x) for x in self.titles])+'\n')
+            subjFile.write(turn_list_to_tabbed_string([capitalize_first_letter(x) for x in self.titles])+'\n')
+            subjFile.write(turn_list_to_tabbed_string([getattr(self, x) for x in self.titles])+'\n')
 
 
 # ████████ ██████  ██  █████  ██
@@ -274,27 +245,22 @@ class subjObject(object):
 #    ██    ██   ██ ██ ██   ██ ██
 #    ██    ██   ██ ██ ██   ██ ███████
 
-class trialObject(object):
-    def __init__(self, expt, subj, titles):
-        self.expt = expt
-        self.expt.trial = self
-        self.subj = subj
-        self.subjNo = subj.num
-        self.exptName = subj.exptName
-        if subj.formal:
-            self.fileName = 'data_'+self.exptName+'.txt'
-        else:
-            self.fileName = 'testingData_'+self.exptName+'.txt'
+class trialDataObject(object):
+    def __init__(self, titles):
         self.titles = titles
         self.clearTrial() # to create all attributes and set default values
 
     def openFile(self):
+        if self.formal:
+            self.fileName = 'data_'+self.exptName+'.txt'
+        else:
+            self.fileName = 'testingData_'+self.exptName+'.txt'
         self.file = open(self.fileName, 'a')
-        self.file.write(tabString([capFirstLetter(x) for x in self.titles])+'\n')
+        self.file.write(turn_list_to_tabbed_string([capitalize_first_letter(x) for x in self.titles])+'\n')
 
     def saveTrial(self, clear=True):
         # save and clear data (except for the subject numbers)
-        self.file.write(tabString([getattr(self, x) for x in self.titles])+'\n')
+        self.file.write(turn_list_to_tabbed_string([getattr(self, x) for x in self.titles])+'\n')
         if clear:
             self.clearTrial()
 
@@ -307,7 +273,7 @@ class trialObject(object):
         try:
             self.file.close()
         except AttributeError:
-            print os.path.basename(__file__) + '  --  NOTICE: Closing the data file before it is created.'
+            print_error_message('NOTICE', os.path.basename(__file__),'Closing the data file before it is created.')
 
 
 # ██ ███    ██ ███████ ████████ ██████
@@ -317,12 +283,9 @@ class trialObject(object):
 # ██ ██   ████ ███████    ██    ██   ██
 
 class instrObject(object):
-    def __init__(self, expt, subj, fileName='instructions.txt', color='black',
+    def __init__(self, fileName='instructions.txt', color='black',
                  beforeFormalText='X', restText='X', restKey=['space'],
                  exptEndText='X', advancedKeyList=['backslash']):
-        self.expt = expt
-        self.expt.instr = self
-        self.w = subj.w
         self.list, self.length = self.readInstr(fileName)
         self.stim = visual.TextStim(
                                     self.w, text='', color=color,
