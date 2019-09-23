@@ -51,6 +51,8 @@ This is a tiny python toolbox for PsychoPy experiment by Yi-Chia Chen.
 - Add check trial list length method in exptObject
 - Use assert
 - Develop testing tool sets
+- update the rest instructions to use str.format()
+- update to Python 3 (use f-strings instead of str.format())
 
 ### Features
 - Allow a parameter of separator in subjDataObject and trialDataObject
