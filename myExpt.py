@@ -42,7 +42,7 @@ def RGB256_to_RGBn1to1(rgb):
     return [(2.0*i/255.0)-1 for i in rgb]
 
 def print_error_message(error_type, file_name, message):
-    print file_name + '  --  ' + error_type + ': ' + message
+    print(file_name + '  --  ' + error_type + ': ' + message)
     return None
 
 def check_string_as_boolean(string_text):
@@ -205,21 +205,21 @@ class subjDataObject(object):
 
     def askForSubjInfo(self):
         while True:
-            self.num = raw_input('Subj No.: (int) ')
+            self.num = input('Subj No.: (int) ')
             try:
                 int(self.num)
                 break
             except ValueError:
                 print_error_message('Error', os.path.basename(__file__),"That's not an integer.")
         while True:
-            self.formal = raw_input('Formal? (T/F) ')
+            self.formal = input('Formal? (T/F) ')
             self.formal = check_string_as_boolean(self.formal)
             if self.formal == None:
                 print_error_message('Error', os.path.basename(__file__),'Failed to convert to Boolean.')
             else:
                 break
         while True:
-            self.replacement = raw_input('Replacement? (T/F) ')
+            self.replacement = input('Replacement? (T/F) ')
             self.replacement = check_string_as_boolean(self.replacement)
             if self.replacement == None:
                 print_error_message('Error', os.path.basename(__file__),'Failed to convert to Boolean.')
@@ -339,7 +339,7 @@ class instrObject(object):
                     instrList.append('') # no function to run
             else:
                 thisPage += line
-        return instrList, len(instrList)/2 # number of instructions pages
+        return instrList, int(len(instrList)/2) # number of instructions pages
 
     def formal(self):
         self.stim.setText(self.beforeFormalText)

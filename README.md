@@ -3,6 +3,7 @@
 This is a tiny python toolbox for PsychoPy experiment by Yi-Chia Chen.
 
 ## Version History
+- 4.0.0 (2019.10.14): move to Python 3
 - 3.1.0 (2019.06.17): rename a few attributes;
                        clear up the trial number calculation;
                        rename trialDataObject instance to trialData, and subjDataObject instance to subjData;
