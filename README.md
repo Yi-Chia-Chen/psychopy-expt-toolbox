@@ -8,6 +8,7 @@ This is a tiny python toolbox for PsychoPy experiment by Yi-Chia Chen.
                        rename trialDataObject instance to trialData, and subjDataObject instance to subjData;
                        Fix some bugs;
                        Add an example experiment
+    - Used in Size Preference Expt 2 2IFC
 
 - 3.0.0b (2019.06.17): create instr, subj, trial objects within expt object;
                        Open the experiment window with method not with the constructor;
