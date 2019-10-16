@@ -90,7 +90,7 @@ class exptObject(object):
 
     def createTrialDataInstance(self, titles):
         self.trialData = trialDataObject(titles)
-        self.trialData.subjNo = self.subjData.num
+        self.trialData.subjNum = self.subjData.num
         self.trialData.exptName = self.exptName
         self.trialData.checked = self.checked
         self.trialData.formal = self.subjData.formal
@@ -261,7 +261,7 @@ class subjDataObject(object):
 
 class trialDataObject(object):
     def __init__(self, titles):
-        self.titles = titles
+        self.titles = ['subjNum'] + titles
         self.clearTrial() # to create all attributes and set default values
 
     def openFile(self):
@@ -280,7 +280,7 @@ class trialDataObject(object):
 
     def clearTrial(self): # clear data (except for the subject numbers)
         for x in self.titles:
-            if x != 'subjNo':
+            if x != 'subjNum':
                 setattr(self, x, '')
 
     def closeFile(self):

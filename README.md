@@ -3,12 +3,14 @@
 This is a tiny python toolbox for PsychoPy experiment by Yi-Chia Chen.
 
 ## Version History
-- 4.0.0 (2019.10.14): move to Python 3
-- 3.1.0 (2019.06.17): rename a few attributes;
-                       clear up the trial number calculation;
-                       rename trialDataObject instance to trialData, and subjDataObject instance to subjData;
-                       Fix some bugs;
-                       Add an example experiment
+- 4.0.1 (2019.10.16): Fix a bug (trial data object subject number rename and set to default);
+                      Current example experiment is not updated to Python 3 yet so it's not usable
+- 4.0.0 (2019.10.14): Move to Python 3
+- 3.1.0 (2019.06.17): Rename a few attributes;
+                      Clear up the trial number calculation;
+                      Rename trialDataObject instance to trialData, and subjDataObject instance to subjData;
+                      Fix some bugs;
+                      Add an example experiment
     - Used in Size Preference Expt 2 2IFC
 
 - 3.0.0b (2019.06.17): create instr, subj, trial objects within expt object;
