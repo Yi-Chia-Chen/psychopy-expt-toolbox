@@ -5,6 +5,9 @@ This is a tiny python toolbox for PsychoPy experiment by Yi-Chia Chen.
 ## Version History
 - 4.0.1 (2019.10.16): Fix a bug (trial data object subject number rename and set to default);
                       Current example experiment is not updated to Python 3 yet so it's not usable
+    - Used in Size Preference Expt 3 Pilot Texform Adjustment
+    - Used in Size Preference Expt 2 Replication (New Texforms)
+    - Used in Size Preference Expt 3 Formal Texform Adjustment
 - 4.0.0 (2019.10.14): Move to Python 3
 - 3.1.0 (2019.06.17): Rename a few attributes;
                       Clear up the trial number calculation;
